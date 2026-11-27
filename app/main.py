@@ -11,6 +11,8 @@ the run immediately, as does a streak of consecutive failures.
 
 from __future__ import annotations
 
+import os
+import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -44,6 +46,13 @@ from .sellerboard import Dashboard
 from .timeutils import now_utc, today_in
 
 logger = get_logger("pipeline")
+
+
+def has_display() -> bool:
+    """Whether a visible (headed) browser can open on this machine."""
+    if not sys.platform.startswith("linux"):
+        return True  # Windows / macOS always have a desktop session
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 
 
 class RunMode(str, Enum):
@@ -422,7 +431,15 @@ class Pipeline:
         return build_periods(last, last, "day")[0]
 
     def _run_login(self) -> None:
-        """Sign in with a person watching, in a visible browser."""
+        """Sign in with a person watching, in a visible browser.
+
+        On a server with no display (Linux without DISPLAY / WAYLAND_DISPLAY) a
+        visible browser cannot start, so sign in headlessly with the configured
+        credentials instead and confirm the dashboard opens.
+        """
+        if not has_display():
+            self._run_headless_login()
+            return
         period = self._sample_period()
         with BrowserSession(self.settings, headless=False) as session:
             page = session.page
@@ -443,6 +460,28 @@ class Pipeline:
                 raise AuthenticationError("Still on the login page; the session was not established.")
             print(f"\nSigned in. Session saved in {self.settings.session_dir}")
             print("Next: python run.py --inspect   (or: python run.py --limit 1)\n")
+
+    def _run_headless_login(self) -> None:
+        """``--login`` on a machine without a screen: credentials, no person."""
+        if not self.settings.has_credentials:
+            raise AuthenticationError(
+                "No display is available for a visible browser, and SELLERBOARD_EMAIL / "
+                "SELLERBOARD_PASSWORD are not set. Set them in .env and run --login again."
+            )
+        print("\nNo display found (headless server): signing in with the credentials from .env...")
+        period = self._sample_period()
+        with BrowserSession(self.settings, headless=True) as session:
+            try:
+                Dashboard(session, self.settings).open_period(period)
+            except AuthenticationError as exc:
+                raise AuthenticationError(
+                    f"{exc} -- If Sellerboard wants a verification code, run --login from a "
+                    "machine with a screen: e.g. 'ssh -X' to this server (with an X server "
+                    "on your PC), or a desktop session. Screenshots are in "
+                    f"{self.settings.screenshot_dir}."
+                ) from exc
+        print(f"\nSigned in. Session saved in {self.settings.session_dir}")
+        print("Next: python run.py --inspect   (or: python run.py --limit 1)\n")
 
     def _run_inspect(self) -> None:
         """Open one day's dashboard and list its clickable controls."""

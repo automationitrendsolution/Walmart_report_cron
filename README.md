@@ -82,6 +82,12 @@ uv run python run.py --inspect   # lists the dashboard's buttons + saves a scree
 uv run python run.py --limit 1   # download just the newest day, check the file
 ```
 
+**On a headless Linux server** (no `DISPLAY`), `--login` cannot open a visible
+browser. It signs in headlessly with `SELLERBOARD_EMAIL` /
+`SELLERBOARD_PASSWORD` instead and saves the session. If Sellerboard asks for
+a verification code, run `--login` with a display, e.g. over `ssh -X` with an
+X server on your PC.
+
 **3. Schedule it.** See [Scheduling](#scheduling).
 
 ---
@@ -247,5 +253,5 @@ column, e.g. `YEAR(period_start)`, `MONTH(period_start)`.
 ## Development
 
 ```bash
-uv run pytest     # 71 unit tests, no network (MySQL is replaced by SQLite)
+uv run pytest     # 74 unit tests, no network (MySQL is replaced by SQLite)
 ```

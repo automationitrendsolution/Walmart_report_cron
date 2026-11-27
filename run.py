@@ -121,6 +121,8 @@ def main(argv: list[str] | None = None) -> int:
     except SellerboardError as exc:
         if isinstance(exc, ConfigurationError):
             return exc.exit_code
+        # Always say why we stopped; otherwise the console ends on the banner.
+        logger.error("Stopped (exit %d): %s", exc.exit_code, exc)
         if isinstance(exc, ServiceUnavailableError):
             logger.error("Sellerboard is under maintenance. Nothing is lost; run again in 10-15 minutes.")
         if isinstance(exc, AuthenticationError):
