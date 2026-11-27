@@ -1,0 +1,93 @@
+{
+  "_comment": "Candidate locators, tried in order until one is visible. The login_* entries were checked against the live login page on 2026-11-26. The dashboard/export entries were verified on 2026-11-26. If Sellerboard changes the page, run 'python run.py --inspect' and put the new locator at the TOP of the list. Any Playwright selector works: css, xpath=, text=, role=.",
+
+  "login_email_input": [
+    "#username",
+    "input[name='login']",
+    "input[type='email']"
+  ],
+  "login_password_input": [
+    "#password",
+    "input[name='password'][type='password']"
+  ],
+  "login_keep_logged_in": [
+    "#keeploggedin",
+    "input[name='keeploggedin']"
+  ],
+  "login_submit_button": [
+    "form[data-loginform] button[type='submit']",
+    "button[type='submit']:has-text('Continue')",
+    "button[type='submit']"
+  ],
+  "_note_maintenance": "Seen 2026-11-26 on the login page: a 'System maintenance' box saying 'We are updating sellerboard with new features ... try again in 5-10 minutes'.",
+  "maintenance_marker": [
+    "text=/System maintenance/i",
+    "text=/updating sellerboard with new features/i",
+    "text=/try again in 5-10 minutes/i"
+  ],
+  "login_error_message": [
+    ".alert-danger",
+    ".parsley-errors-list li",
+    "[role='alert']",
+    ".error-message"
+  ],
+  "login_challenge_marker": [
+    "iframe[src*='recaptcha']",
+    "iframe[src*='hcaptcha']",
+    "input[name*='code' i][type='text']",
+    "input[autocomplete='one-time-code']",
+    "text=/verification code/i"
+  ],
+
+  "_note_dashboard": "Verified 2026-11-26: the Products table export button appears once the dashboard has loaded.",
+  "dashboard_ready": [
+    "button[ng-click*='entriesExport']:visible",
+    "[class*='dashboard' i] [class*='tile' i]",
+    "[class*='dashboard' i]",
+    "#content",
+    "body"
+  ],
+  "loading_indicator": [
+    ".loading:visible",
+    ".spinner:visible",
+    "[class*='preloader' i]:visible",
+    "[class*='loader' i]:visible"
+  ],
+
+  "_note_export": "Verified 2026-11-26: the Products table's download icon is <button ng-click=\"entriesExport($event, 'xls')\">. It builds the export server-side behind a progress popup, then downloads an Excel file. The other entries are fallbacks.",
+  "export_trigger": [
+    "button[ng-click*=\"entriesExport($event, 'xls')\"]:visible",
+    "button[ng-click*='entriesExport']:visible",
+    "button:has-text('Export')",
+    "a:has-text('Export')",
+    "[title*='Export' i]",
+    "[data-original-title*='Export' i]",
+    "[aria-label*='Export' i]",
+    "button:has-text('Download')",
+    "a:has-text('Download')",
+    "[title*='Download' i]",
+    "[data-original-title*='Download' i]",
+    "i[class*='download']",
+    "[class*='export' i]:not(div)"
+  ],
+  "_note_progress": "Verified 2026-11-26 from a stuck export: Sellerboard's 'preparing export' popup is div#entriesExportModal. While it is open the file is still being built, so the export must not be clicked again (the popup blocks the button anyway).",
+  "export_progress_marker": [
+    "#entriesExportModal:visible",
+    ".importExportModal.in",
+    ".downloading_modal.in:not(#exportFileWillBeSentModal)",
+    ".modal.in .progress"
+  ],
+  "export_emailed_marker": [
+    "#exportFileWillBeSentModal.in"
+  ],
+  "export_format_option": [
+    "role=menuitem[name=/excel|xlsx/i]",
+    "a:text-matches('^\\s*(Excel|XLSX|\\.xlsx)\\s*$', 'i')",
+    "li:text-matches('^\\s*(Excel|XLSX|\\.xlsx)\\s*$', 'i')",
+    "button:text-matches('^\\s*(Excel|XLSX|\\.xlsx)\\s*$', 'i')",
+    "role=menuitem[name=/csv/i]",
+    "a:text-matches('^\\s*(CSV|\\.csv)\\s*$', 'i')",
+    ".dropdown-menu.show a:has-text('Download')",
+    ".dropdown-menu:visible a"
+  ]
+}

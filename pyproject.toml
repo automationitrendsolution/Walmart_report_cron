@@ -1,0 +1,26 @@
+[project]
+name = "sellerboard-walmart"
+version = "1.0.0"
+description = "Sellerboard Walmart dashboard export: Playwright -> per-period file downloads, newest first"
+requires-python = ">=3.11"
+dependencies = [
+    "mysql-connector-python>=9.0.0",
+    "openpyxl>=3.1.0",
+    "playwright>=1.49.0",
+    "python-dotenv>=1.0.1",
+    "sqlalchemy>=2.0.30",
+    "tzdata>=2024.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers -m 'not live'"
+markers = [
+    "live: touches the real Sellerboard site; deselected by default",
+]
